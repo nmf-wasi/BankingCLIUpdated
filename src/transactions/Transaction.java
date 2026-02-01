@@ -57,5 +57,4 @@ public class Transaction {
     public TransactionStatus getStatus(){ return status;}
     public TransactionType getType(){return type;}
     public BigDecimal getAmount(){return amount;}
-
 }

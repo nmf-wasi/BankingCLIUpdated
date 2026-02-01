@@ -3,9 +3,9 @@ package models;
 import transactions.Transaction;
 import transactions.TransactionStatus;
 import transactions.TransactionType;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
+
 
 public class BankAccount {
     private final String customerName;
@@ -51,6 +51,14 @@ public class BankAccount {
 
     }
 
+
+
+
+
+    public void addTransaction(Transaction transaction){
+        transactions.add(transaction);
+    }
+
     public String getAccountNumber() {
         return accountNumber;
     }
@@ -70,5 +78,7 @@ public class BankAccount {
     public ArrayList<Transaction> getTransactions() {
         return transactions;
     }
+    public BigDecimal getMinimumBalance() {return minimumBalance;}
+
 
 }

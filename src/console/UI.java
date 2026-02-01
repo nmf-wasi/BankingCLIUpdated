@@ -32,10 +32,11 @@ public class UI {
                 case 1 -> createAccount();
                 case 2 -> deposit();
                 case 3 -> withdraw();
-                case 4 -> showBalance();
-                case 5 -> showTransactions();
-                case 6 -> analyticsMenu();
-                case 7 -> {
+                case 4 -> transferMoney();
+                case 5 -> showBalance();
+                case 6 -> showTransactions();
+                case 7 -> analyticsMenu();
+                case 8 -> {
                     exit();
                     return;
                 }
@@ -95,42 +96,76 @@ public class UI {
     }
 
     private void deposit() {
-        System.out.println("Account Number: ");
+        System.out.print("Enter your account number: ");
         String accNum = scanner.nextLine();
         Optional<BankAccount> account = bank.findByAccountNumber(accNum);
         if (account.isEmpty()) {
             System.out.println("Account not found!");
             return;
         }
-
-        BigDecimal amount;
-        System.out.println("Deposit amount: ");
-        if (!scanner.hasNextDouble()) {
-            System.out.println("Invalid amount!");
-            scanner.nextLine();
-            return;
-        }
-        do {
-            System.out.print("Deposit amount: ");
-            amount = scanner.nextBigDecimal();
-            if (!validAmount(amount)) System.out.println("INVALID AMOUNT! Try again...");
-        } while (!validAmount(amount));
-
-        String message;
-        String choice;
-        System.out.print("Would you like to add a message? (Y/N): ");
-        choice = scanner.nextLine();
-        char choiceChar = Character.toUpperCase(choice.charAt(0));
-        if (choiceChar == 'Y') {
-            System.out.print("Enter message: ");
-            message = scanner.nextLine();
-        } else {
-            message = "";
-        }
-        bank.deposit(accNum,amount,message);
-
+        BigDecimal amount=getValidDecimal("Enter the amount of money you want to deposit: ");
+        String message=getOptionalMessage();
+        bank.deposit(accNum, amount, message);
     }
 
+    private void withdraw() {
+        System.out.print("Enter your account number: ");
+        String accNumber = scanner.nextLine();
+        Optional<BankAccount> bankAccount = bank.findByAccountNumber(accNumber);
+        if (bankAccount.isEmpty()) {
+            System.out.println("Account not found!");
+            return;
+        }
+        BigDecimal amount=getValidDecimal("Enter the amount of money you want to withdraw: ");
+        String message=getOptionalMessage();
+        bank.deposit(accNumber, amount, message);
+    }
+
+    private void transferMoney(){
+        System.out.print("Enter your account number: ");
+        String accNumber = scanner.nextLine();
+        Optional<BankAccount> bankAccount = bank.findByAccountNumber(accNumber);
+        if (bankAccount.isEmpty()) {
+            System.out.println("Account not found!");
+            return;
+        }
+        System.out.print("Enter receiver account number: ");
+        String receiverAccNumber = scanner.nextLine();
+        Optional<BankAccount> receiverAccount = bank.findByAccountNumber(receiverAccNumber);
+        if (receiverAccount.isEmpty()) {
+            System.out.println("Receiver account not found!");
+            return;
+        }
+        BigDecimal amount=getValidDecimal("Enter deposit amount: ");
+        String message=getOptionalMessage();
+        bank.transferMoney(accNumber,receiverAccount,amount,message);
+    }
+
+    private BigDecimal getValidDecimal(String prompt){
+        BigDecimal amount;
+        while(true){
+            System.out.println(prompt);
+            if(!scanner.hasNextBigDecimal()){
+                System.out.println("INVALID INPUT! PLEASE ENTER A NUMBER!");
+                scanner.nextLine();
+                continue;
+            }
+            amount=scanner.nextBigDecimal();
+            scanner.nextLine();
+            if(validAmount(amount)) return amount;
+            System.out.println("Amount must be greater than $0!");
+        }
+    }
+
+    private  String getOptionalMessage(){
+        System.out.print("Add a message? (Y/N): ");
+        String choice =scanner.nextLine().trim();
+        if(choice.isEmpty()|| Character.toUpperCase(choice.charAt(0))=='Y'){
+            System.out.println("Enter message: ");
+            return scanner.nextLine();
+        }
+        return "";
+    }
 
     private void loading(String message) {
         System.out.print(message);

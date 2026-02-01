@@ -9,7 +9,7 @@ public class TransactionStore {
 
     }
 
-    public static void appendTransaction(BankAccount bankAccount){
+    public static void appendTransaction(BankAccount bankAccount, Transaction transaction){
         
     }
 }

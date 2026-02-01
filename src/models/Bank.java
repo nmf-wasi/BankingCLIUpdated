@@ -2,6 +2,7 @@ package models;
 
 import transactions.Transaction;
 import transactions.TransactionStatus;
+import transactions.TransactionStore;
 import transactions.TransactionType;
 
 import java.io.*;
@@ -19,30 +20,83 @@ import static utility.Validation.validAmount;
 import static utility.WritingCsv.appendToFile;
 
 public class Bank {
-    ArrayList<BankAccount>accounts=new ArrayList<>();
+    ArrayList<BankAccount> accounts = new ArrayList<>();
+    private final BigDecimal minimumBalance = BigDecimal.valueOf(100);
 
     public BankAccount createAccount(String customerName,
                                      String phoneNumber,
                                      String customerEmail,
-                                     BigDecimal initialDeposit){
-        String accountNumber=setAccountNumber();
-        if(findByAccountNumber(accountNumber).isPresent()){
+                                     BigDecimal initialDeposit) {
+        String accountNumber = setAccountNumber();
+        if (findByAccountNumber(accountNumber).isPresent()) {
             System.out.println("Account already exists!");
             return null;
         }
-        BankAccount bankAccount=new BankAccount(customerName,accountNumber,phoneNumber,customerEmail, initialDeposit);
+        BankAccount bankAccount = new BankAccount(customerName, accountNumber, phoneNumber, customerEmail, initialDeposit);
         accounts.add(bankAccount);
         appendToFile(bankAccount);
         return bankAccount;
     }
 
 
-    public void deposit(String accountNumber,
-                        BigDecimal amount,
-                        String message) {
+    public boolean deposit(String accountNumber,
+                           BigDecimal amount,
+                           String message) {
 
-        if(!validAmount(amount)) throw IllegalArgumentException
+        if (!validAmount(amount)) {
+            System.out.println("You have to deposit more than $0!");
+            return false;
+        }
+        Optional<BankAccount> bankAccount = findByAccountNumber(accountNumber);
+        if (bankAccount.isEmpty()) {
+            System.out.println("Couldn't find account: " + accountNumber);
+            return false;
+        }
+        BankAccount account = bankAccount.get(); //get the acc obj from the Optional
+        Transaction transaction = new Transaction(
+                accountNumber, amount,
+                TransactionType.DEPOSIT,
+                TransactionStatus.SUCCESS,
+                message);
+
+        account.addTransaction(transaction);
+        TransactionStore.appendTransaction(account, transaction);
+        System.out.println("Deposited "+amount+" to account: "+accountNumber+"!");
+        System.out.println("New balance: "+getBalance(account));
+        return true;
     }
+
+    public boolean withdraw(String accountNumber,
+                            BigDecimal amount,
+                            String message) {
+        if(!validAmount(amount)){
+            System.out.println("You can't withdraw less than $0!");
+            return false;
+        }
+        Optional<BankAccount> bankAccount = findByAccountNumber(accountNumber);
+        if (bankAccount.isEmpty()) {
+            System.out.println("Couldn't find account: " + accountNumber);
+            return false;
+        }
+        BankAccount account = bankAccount.get();
+        BigDecimal availableBalance=getBalance(account).subtract(account.getMinimumBalance());
+        if(availableBalance.compareTo(amount)<0){
+            System.out.println("Not enough balance!");
+            return false;
+        }
+        Transaction transaction=new Transaction(accountNumber,amount,
+                TransactionType.WITHDRAW,
+                TransactionStatus.SUCCESS,
+                message);
+        account.addTransaction(transaction);
+        TransactionStore.appendTransaction(account, transaction);
+        System.out.println("Withdrew "+amount+" from account: "+accountNumber+"!");
+        System.out.println("New balance: $"+getBalance(account));
+        return true;
+    }
+
+
+
 
     public void loadAccounts() {
         accounts.clear();
@@ -74,20 +128,21 @@ public class Bank {
         }
     }
 
-    public Optional<BankAccount> findByAccountNumber(String accountNumber){
+
+    public Optional<BankAccount> findByAccountNumber(String accountNumber) {
         return accounts.stream()
-                .filter(acc-> acc.getAccountNumber()
+                .filter(acc -> acc.getAccountNumber()
                         .equals(accountNumber)
                 ).findFirst();
     }
 
-    public BigDecimal getBalance(BankAccount bankAccount){
+
+    public static BigDecimal getBalance(BankAccount bankAccount) {
         return bankAccount.getTransactions().stream()
-                .filter(transaction -> transaction.getStatus()==TransactionStatus.SUCCESS)
+                .filter(transaction -> transaction.getStatus() == TransactionStatus.SUCCESS)
                 .map(transaction ->
                 {
-                    switch (transaction.getType())
-                    {
+                    switch (transaction.getType()) {
                         case DEPOSIT:
                         case TRANSFER_IN:
                             return transaction.getAmount();
