@@ -8,4 +8,8 @@ public class TransactionStore {
     public static void loadTransactions(BankAccount bankAccount){
 
     }
+
+    public static void appendTransaction(BankAccount bankAccount){
+        
+    }
 }

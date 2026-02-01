@@ -1,5 +1,9 @@
 package models;
 
+import transactions.Transaction;
+import transactions.TransactionStatus;
+import transactions.TransactionType;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -11,6 +15,7 @@ import java.util.Optional;
 import static transactions.TransactionStore.loadTransactions;
 import static utility.CsvUtil.bankAccountCSVtoText;
 import static utility.IDGenerator.setAccountNumber;
+import static utility.Validation.validAmount;
 import static utility.WritingCsv.appendToFile;
 
 public class Bank {
@@ -21,7 +26,7 @@ public class Bank {
                                      String customerEmail,
                                      BigDecimal initialDeposit){
         String accountNumber=setAccountNumber();
-        if(findAccount(accountNumber).isPresent()){
+        if(findByAccountNumber(accountNumber).isPresent()){
             System.out.println("Account already exists!");
             return null;
         }
@@ -29,6 +34,14 @@ public class Bank {
         accounts.add(bankAccount);
         appendToFile(bankAccount);
         return bankAccount;
+    }
+
+
+    public void deposit(String accountNumber,
+                        BigDecimal amount,
+                        String message) {
+
+        if(!validAmount(amount)) throw IllegalArgumentException
     }
 
     public void loadAccounts() {
@@ -61,10 +74,30 @@ public class Bank {
         }
     }
 
-    public Optional<BankAccount> findAccount(String accountNumber){
+    public Optional<BankAccount> findByAccountNumber(String accountNumber){
         return accounts.stream()
                 .filter(acc-> acc.getAccountNumber()
                         .equals(accountNumber)
                 ).findFirst();
+    }
+
+    public BigDecimal getBalance(BankAccount bankAccount){
+        return bankAccount.getTransactions().stream()
+                .filter(transaction -> transaction.getStatus()==TransactionStatus.SUCCESS)
+                .map(transaction ->
+                {
+                    switch (transaction.getType())
+                    {
+                        case DEPOSIT:
+                        case TRANSFER_IN:
+                            return transaction.getAmount();
+                        case WITHDRAW:
+                        case TRANSFER_OUT:
+                            return transaction.getAmount().negate();
+                        default:
+                            return BigDecimal.ZERO;
+                    }
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
