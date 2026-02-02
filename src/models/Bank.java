@@ -61,15 +61,15 @@ public class Bank {
 
         account.addTransaction(transaction);
         TransactionStore.appendTransaction(account, transaction);
-        System.out.println("Deposited "+amount+" to account: "+accountNumber+"!");
-        System.out.println("New balance: "+getBalance(account));
+        System.out.println("Deposited " + amount + " to account: " + accountNumber + "!");
+        System.out.println("New balance: " + getBalance(account));
         return true;
     }
 
     public boolean withdraw(String accountNumber,
                             BigDecimal amount,
                             String message) {
-        if(!validAmount(amount)){
+        if (!validAmount(amount)) {
             System.out.println("You can't withdraw less than $0!");
             return false;
         }
@@ -79,23 +79,59 @@ public class Bank {
             return false;
         }
         BankAccount account = bankAccount.get();
-        BigDecimal availableBalance=getBalance(account).subtract(account.getMinimumBalance());
-        if(availableBalance.compareTo(amount)<0){
+        BigDecimal availableBalance = getBalance(account).subtract(account.getMinimumBalance());
+        if (availableBalance.compareTo(amount) < 0) {
             System.out.println("Not enough balance!");
             return false;
         }
-        Transaction transaction=new Transaction(accountNumber,amount,
+        Transaction transaction = new Transaction(accountNumber, amount,
                 TransactionType.WITHDRAW,
                 TransactionStatus.SUCCESS,
                 message);
         account.addTransaction(transaction);
         TransactionStore.appendTransaction(account, transaction);
-        System.out.println("Withdrew "+amount+" from account: "+accountNumber+"!");
-        System.out.println("New balance: $"+getBalance(account));
+        System.out.println("Withdrew " + amount + " from account: " + accountNumber + "!");
+        System.out.println("New balance: $" + getBalance(account));
         return true;
     }
 
+    public boolean transferMoney(BankAccount senderAccount,
+                                 BankAccount receiverAccount,
+                                 BigDecimal amount, String message) {
+        boolean success=true;
+        // deposit on  receiver acc withdraw from sender acc, jobs done!
+        BigDecimal senderBalance = getBalance(senderAccount);
+        TransactionStatus transactionStatus = TransactionStatus.SUCCESS;
+        if ((senderBalance.add(senderAccount.getMinimumBalance().negate())).compareTo(amount) < 0) {
+            transactionStatus = TransactionStatus.FAILURE;
+            System.out.println("Insufficient balance in sender account!");
+            success=false;
+        }
+        Transaction transaction =
+                new Transaction(senderAccount.getAccountNumber(),
+                        receiverAccount.getAccountNumber(),
+                        amount,
+                        TransactionType.TRANSFER_OUT,
+                        transactionStatus,
+                        message);
+        senderAccount.addTransaction(transaction);
+        if (transactionStatus != TransactionStatus.FAILURE) {
+            Transaction receiverTransaction = new Transaction(
+                    receiverAccount.getAccountNumber(),
+                    senderAccount.getAccountNumber(),
+                    amount,
+                    TransactionType.TRANSFER_IN,
+                    transactionStatus, message);
+            receiverAccount.addTransaction(receiverTransaction);
+            TransactionStore.appendTransaction(receiverAccount, receiverTransaction);
+            System.out.println("✓ Transfer successful!");
+            System.out.println("  From: " + senderAccount.getAccountNumber() + " (New balance: $" + getBalance(senderAccount) + ")");
+            System.out.println("  To: " + receiverAccount.getAccountNumber() + " (New balance: $" + getBalance(receiverAccount) + ")");
+        }
+        TransactionStore.appendTransaction(senderAccount, transaction);
+        return success;
 
+    }
 
 
     public void loadAccounts() {

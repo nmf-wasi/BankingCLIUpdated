@@ -123,9 +123,9 @@ public class UI {
 
     private void transferMoney(){
         System.out.print("Enter your account number: ");
-        String accNumber = scanner.nextLine();
-        Optional<BankAccount> bankAccount = bank.findByAccountNumber(accNumber);
-        if (bankAccount.isEmpty()) {
+        String senderAccNumber = scanner.nextLine();
+        Optional<BankAccount> senderAccount = bank.findByAccountNumber(senderAccNumber);
+        if (senderAccount.isEmpty()) {
             System.out.println("Account not found!");
             return;
         }
@@ -138,7 +138,7 @@ public class UI {
         }
         BigDecimal amount=getValidDecimal("Enter deposit amount: ");
         String message=getOptionalMessage();
-        bank.transferMoney(accNumber,receiverAccount,amount,message);
+        bank.transferMoney(senderAccount.get(),receiverAccount.get(),amount,message);
     }
 
     private BigDecimal getValidDecimal(String prompt){
