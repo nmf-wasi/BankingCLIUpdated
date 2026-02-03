@@ -25,7 +25,7 @@ public class UI {
             if (!scanner.hasNextInt()) {
                 System.out.println("Invalid input. Please enter a number.");
                 scanner.nextLine(); // clear invalid input
-                return;
+                continue;
             }
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -250,16 +250,15 @@ public class UI {
         }
     }
 
-    private  String getOptionalMessage(){
+    private String getOptionalMessage(){
         System.out.print("Add a message? (Y/N): ");
-        String choice =scanner.nextLine().trim();
-        if(choice.isEmpty()|| Character.toUpperCase(choice.charAt(0))=='Y'){
-            System.out.println("Enter message: ");
+        String choice = scanner.nextLine().trim();
+        if(!choice.isEmpty() && Character.toUpperCase(choice.charAt(0)) == 'Y'){
+            System.out.print("Enter message: ");
             return scanner.nextLine();
         }
         return "";
     }
-
     private void loading(String message) {
         System.out.print(message);
         try {
@@ -274,8 +273,6 @@ public class UI {
     }
 }
 
-
-//TODO ✅ Implement proper ID generation in setAccountNumber() - generate unique account numbers (UUID or incremental)
 //
 //TODO Medium Priority (Important):
 //

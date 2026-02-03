@@ -55,12 +55,26 @@ public class Transaction implements Comparable<Transaction>{
 
     @Override
     public String toString() {
-        return "Transaction ID: "+transactionID+
-                (toAcc.isEmpty()? "Account: "+fromAcc :"From Account: "+fromAcc+" To Account: "+toAcc)
-                +"Date: "+date
-                +"Transaction Type: "+type
-                +"Transaction Status : "+status
-                +"Message: "+message;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Transaction ID: ").append(transactionID).append("\n");
+
+        if (toAcc.isEmpty()) {
+            sb.append("  Account: ").append(fromAcc).append("\n");
+        } else {
+            sb.append("  From Account: ").append(fromAcc).append("\n");
+            sb.append("  To Account: ").append(toAcc.get()).append("\n");
+        }
+
+        sb.append("  Amount: $").append(amount).append("\n");
+        sb.append("  Date: ").append(date).append("\n");
+        sb.append("  Transaction Type: ").append(type).append("\n");
+        sb.append("  Transaction Status: ").append(status).append("\n");
+
+        if (!message.isEmpty()) {
+            sb.append("  Message: ").append(message).append("\n");
+        }
+
+        return sb.toString();
     }
 
     public String getMessage(){return message;}

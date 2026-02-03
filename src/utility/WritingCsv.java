@@ -11,10 +11,14 @@ import static utility.CsvUtil.bankAccountTextToCSV;
 public class WritingCsv {
     public static void appendToFile(BankAccount bankAccount){
         String filePath="src/repo/bankAccounts.csv";
-        File dataDir=new File(filePath);
-        if(!dataDir.exists()) dataDir.mkdir();
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        if(!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
         try(FileWriter fileWriter=new FileWriter(filePath,true)){
-        fileWriter.write(bankAccountTextToCSV(bankAccount));
+            fileWriter.write(bankAccountTextToCSV(bankAccount));
         }catch (IOException e){
             System.out.println("Couldn't save new account to existing csv file!");
             e.printStackTrace();

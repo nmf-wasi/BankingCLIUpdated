@@ -28,10 +28,10 @@ public class Bank {
                                      String customerEmail,
                                      BigDecimal initialDeposit) {
         String accountNumber = setAccountNumber(accounts.size());
-        if (findByAccountNumber(accountNumber).isPresent()) {
-            System.out.println("Account already exists!");
-            return null;
-        }
+//        if (findByAccountNumber(accountNumber).isPresent()) {
+//            System.out.println("Account already exists!");
+//            return null;
+//        }  acc num will always be unique
         BankAccount bankAccount = new BankAccount(customerName, accountNumber, phoneNumber, customerEmail, initialDeposit);
         accounts.add(bankAccount);
         appendToFile(bankAccount);
