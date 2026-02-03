@@ -1,6 +1,7 @@
 package utility;
 
 import models.BankAccount;
+import transactions.Transaction;
 
 import java.util.Optional;
 
@@ -29,5 +30,26 @@ public class CsvUtil {
         return Optional.of(new BankAccount(customerName,accountNumber,phoneNumber,customerEmail));
     }
 
+
+    public static String transactionToCSV(Transaction transaction){
+        return String.join((CharSequence) ",",
+            transaction.getTransactionID(),
+                transaction.getFromAcc(),
+                transaction.getToAcc().orElse(""),
+                transaction.getAmount().toString(),
+                transaction.getDate().toString(),
+                transaction.getType().toString(),
+                transaction.getStatus().toString(),
+                escapeCsv(transaction.getMessage())
+                );
+    }
+
+    public static String escapeCsv(String value) {
+        if (value == null || value.isEmpty()) return "";
+        if (value.contains(",") || value.contains("\"")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
 
 }

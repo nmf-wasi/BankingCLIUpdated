@@ -51,10 +51,11 @@ public class UI {
                 1: Create an Account
                 2: Deposit
                 3: Withdraw
-                4: Show Balance
-                5: Show Transaction List
-                6: Analytics
-                7: Exit
+                4: Transfer Money
+                5: Show Balance
+                6: Show Transaction List
+                7: Analytics
+                8: Exit
                 """);
     }
 
@@ -118,7 +119,7 @@ public class UI {
         }
         BigDecimal amount=getValidDecimal("Enter the amount of money you want to withdraw: ");
         String message=getOptionalMessage();
-        bank.deposit(accNumber, amount, message);
+        bank.withdraw(accNumber, amount, message);
     }
 
     private void transferMoney(){
@@ -139,6 +140,21 @@ public class UI {
         BigDecimal amount=getValidDecimal("Enter deposit amount: ");
         String message=getOptionalMessage();
         bank.transferMoney(senderAccount.get(),receiverAccount.get(),amount,message);
+    }
+
+    private void showBalance() {
+        System.out.println("Account Number: ");
+        String accNum = scanner.nextLine();
+        Optional<BankAccount> account = bank.findByAccountNumber(accNum);
+        if (account.isEmpty()) {
+            System.out.println("Account not found!");
+            return;
+        }
+        System.out.println("Current Balance: " + Bank.getBalance(account.get()));
+    }
+
+    private void exit() {
+        System.out.println("Exiting...");
     }
 
     private BigDecimal getValidDecimal(String prompt){
@@ -180,3 +196,48 @@ public class UI {
         System.out.println();
     }
 }
+
+
+//TODO ✅ Implement showBalance() method in UI class
+//TODO ✅ Implement showTransactions() method in UI class
+//TODO ✅ Implement analyticsMenu() method in UI class (for basic analytics like total deposits, withdrawals, etc.)
+//TODO         ✅ Fix CSV writing - Add \n to end of CSV strings in both bankAccountTextToCSV() and transactionToCSV()
+//TODO         ✅ Fix transactionToCSV() - Remove the incorrect (CharSequence) cast and use proper String.join syntax
+//TODO ✅ Implement loadTransactions() in TransactionStore to load transaction history from CSV
+//TODO ✅ Implement proper ID generation in setAccountNumber() - generate unique account numbers (UUID or incremental)
+//
+//TODO Medium Priority (Important):
+//
+//TODO         ✅ Fix directory creation logic in WritingCsv and TransactionStore - use getParentFile().mkdirs() instead of mkdir() on file paths
+//TODO ✅ Add transaction validation - Check for duplicate transaction IDs when loading
+//TODO ✅ Implement CSV parsing for transactions - Create a method to convert CSV string back to Transaction object
+//TODO ✅ Add error handling for file operations throughout the application
+//TODO ✅ Transaction filtering - Add methods to filter transactions by date, type, or status
+//TODO ✅ Account search improvements - Add methods to search by customer name, email, or phone
+//
+//TODO Low Priority (Nice to Have):
+//
+//TODO         ✅ Add transaction history display options - Filter by date range, type, etc.
+// TODO        ✅ Implement analytics features:
+//
+        //TODO Total deposits/withdrawals
+        //TODO Average transaction amount
+        //TODO Most frequent transaction type
+        //TODO Monthly summaries
+//
+//
+//TODO ✅ Add input validation improvements - More robust error messages
+//TODO ✅ Add account deletion feature
+//TODO ✅ Add transaction reversal/cancellation feature
+//TODO ✅ Implement password/PIN security for accounts
+//TODO ✅ Add transaction limits (daily/monthly)
+//TODO ✅ Better formatting for transaction display (use tables)
+//TODO ✅ Add logging for debugging purposes
+//
+//TODO Code Quality Improvements:
+//
+// TODO        ✅ Consistent error handling - Standardize how errors are displayed to users
+//TODO ✅ Extract magic numbers - Move hardcoded values like minimum balance to constants
+//TODO ✅ Add JavaDoc comments to public methods
+//TODO ✅ Unit tests - Add JUnit tests for Bank and BankAccount classes
+//TODO ✅ Separate concerns - Consider moving CSV operations to a dedicated repository class

@@ -55,9 +55,13 @@ public class BankAccount {
 
 
 
+
+
     public void addTransaction(Transaction transaction){
         transactions.add(transaction);
     }
+
+
 
     public String getAccountNumber() {
         return accountNumber;

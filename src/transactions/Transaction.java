@@ -54,6 +54,11 @@ public class Transaction {
     }
 
 
+    public String getMessage(){return message;}
+    public LocalDate getDate(){return date;}
+    public Optional<String> getToAcc(){return toAcc;}
+    public String getFromAcc(){return fromAcc;}
+    public String getTransactionID(){return transactionID;}
     public TransactionStatus getStatus(){ return status;}
     public TransactionType getType(){return type;}
     public BigDecimal getAmount(){return amount;}
