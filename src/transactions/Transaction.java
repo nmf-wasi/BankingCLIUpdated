@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Transaction {
+public class Transaction implements Comparable<Transaction>{
     private final String transactionID;
     private final String fromAcc;
     private final Optional<String> toAcc;
@@ -53,6 +53,15 @@ public class Transaction {
         this(UUID.randomUUID().toString(), accountNumber, amount, LocalDate.now(), type, status, message, Optional.of(relatedAccountNumber));
     }
 
+    @Override
+    public String toString() {
+        return "Transaction ID: "+transactionID+
+                (toAcc.isEmpty()? "Account: "+fromAcc :"From Account: "+fromAcc+" To Account: "+toAcc)
+                +"Date: "+date
+                +"Transaction Type: "+type
+                +"Transaction Status : "+status
+                +"Message: "+message;
+    }
 
     public String getMessage(){return message;}
     public LocalDate getDate(){return date;}
@@ -62,4 +71,10 @@ public class Transaction {
     public TransactionStatus getStatus(){ return status;}
     public TransactionType getType(){return type;}
     public BigDecimal getAmount(){return amount;}
+
+    @Override
+    public int compareTo(Transaction o) {
+        return o.getDate().compareTo(this.getDate()); // naturally how it should be sorted
+    }
+
 }

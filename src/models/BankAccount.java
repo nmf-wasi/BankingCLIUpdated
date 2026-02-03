@@ -1,10 +1,13 @@
 package models;
 
 import transactions.Transaction;
+import transactions.TransactionAnalytics;
 import transactions.TransactionStatus;
 import transactions.TransactionType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+
+import static transactions.Printer.printTransactions;
 
 
 public class BankAccount {
@@ -52,9 +55,13 @@ public class BankAccount {
     }
 
 
+    public TransactionAnalytics getAnalytics(){
+    return new TransactionAnalytics(transactions);
+    }
 
-
-
+    public void showTransactions(){
+        printTransactions(transactions);
+    }
 
 
     public void addTransaction(Transaction transaction){

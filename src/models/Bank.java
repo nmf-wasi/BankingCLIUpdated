@@ -27,7 +27,7 @@ public class Bank {
                                      String phoneNumber,
                                      String customerEmail,
                                      BigDecimal initialDeposit) {
-        String accountNumber = setAccountNumber();
+        String accountNumber = setAccountNumber(accounts.size());
         if (findByAccountNumber(accountNumber).isPresent()) {
             System.out.println("Account already exists!");
             return null;
@@ -172,6 +172,9 @@ public class Bank {
                 ).findFirst();
     }
 
+    public ArrayList<BankAccount> getAccounts(){
+        return accounts;
+    }
 
     public static BigDecimal getBalance(BankAccount bankAccount) {
         return bankAccount.getTransactions().stream()

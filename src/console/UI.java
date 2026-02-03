@@ -2,6 +2,7 @@ package console;
 
 import models.Bank;
 import models.BankAccount;
+import transactions.TransactionAnalytics;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -153,6 +154,82 @@ public class UI {
         System.out.println("Current Balance: " + Bank.getBalance(account.get()));
     }
 
+    private void showTransactions() {
+        System.out.println("Account Number: ");
+        String accNum = scanner.nextLine();
+        Optional<BankAccount> account = bank.findByAccountNumber(accNum);
+        if (account.isEmpty()) {
+            System.out.println("Account not found!");
+            return;
+        }
+        account.get().showTransactions();
+    }
+
+    private void analyticsMenu() {
+        System.out.println("Account Number: ");
+        String accountNumber = scanner.nextLine();
+
+        Optional<BankAccount> bankAccount = bank.findByAccountNumber(accountNumber);
+        if (bankAccount.isEmpty()) {
+            System.out.println("Account not found!");
+            return;
+        }
+        TransactionAnalytics analytics = bankAccount.get().getAnalytics();
+        while (true) {
+            System.out.println("""
+                    Analytics Options:
+                    1: Total Deposited
+                    2: Total Withdrawn
+                    3: Failed Transactions
+                    4: Recent Transactions
+                    5: Transactions Per Day
+                    6: Group By Type
+                    7: Back to Main Menu
+                    """);
+            if (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.nextLine(); // clear invalid input
+                return;
+            }
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1 -> {
+                    loading("Loading total deposit");
+                    System.out.printf("Total Deposit: $%.2f\n", analytics.totalDeposited());
+                }
+                case 2 -> {
+                    loading("Loading total withdrawn");
+                    System.out.println("Total Withdrawn: $" + analytics.totalWithdrawn());
+                }
+                case 3 -> {
+                    loading("Printing Failed Transactions");
+                    analytics.printFailedTransactions();
+                }
+                case 4 -> {
+                    loading("Printing Recent Transactions");
+                    analytics.recentTransactions();
+                }
+                case 5 -> {
+                    loading("Printing Transactions Per day");
+                    analytics.transactionsPerDay()
+                            .forEach((date, txs) ->
+                                    System.out.println(date + " -> " + txs.size() + " transactions"));
+                }
+                case 6 -> {
+                    loading("Printing transactions in grouped by transaction type view");
+                    analytics.groupByType()
+                            .forEach((type, transaction) ->
+                                    System.out.println(type + " -> " + transaction));
+                }
+                case 7 -> {
+                    return;
+                }
+                default -> System.out.println("Invalid choice!");
+            }
+        }
+    }
+
     private void exit() {
         System.out.println("Exiting...");
     }
@@ -198,17 +275,10 @@ public class UI {
 }
 
 
-//TODO ✅ Implement showBalance() method in UI class
-//TODO ✅ Implement showTransactions() method in UI class
-//TODO ✅ Implement analyticsMenu() method in UI class (for basic analytics like total deposits, withdrawals, etc.)
-//TODO         ✅ Fix CSV writing - Add \n to end of CSV strings in both bankAccountTextToCSV() and transactionToCSV()
-//TODO         ✅ Fix transactionToCSV() - Remove the incorrect (CharSequence) cast and use proper String.join syntax
-//TODO ✅ Implement loadTransactions() in TransactionStore to load transaction history from CSV
 //TODO ✅ Implement proper ID generation in setAccountNumber() - generate unique account numbers (UUID or incremental)
 //
 //TODO Medium Priority (Important):
 //
-//TODO         ✅ Fix directory creation logic in WritingCsv and TransactionStore - use getParentFile().mkdirs() instead of mkdir() on file paths
 //TODO ✅ Add transaction validation - Check for duplicate transaction IDs when loading
 //TODO ✅ Implement CSV parsing for transactions - Create a method to convert CSV string back to Transaction object
 //TODO ✅ Add error handling for file operations throughout the application
